@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d4146f">
+<title>CUNEX Library Room Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fdf1f6;--sf:#fff;--ink:#2a1420;--mute:#7d6672;--line:#f0d5e1;--brand:#d4146f;--bi:#fff;--full:#c62f2f;--ok:#1f9d55;--wait:#d98a00;--soft:#fde3ef}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a0f15;--sf:#27171f;--ink:#f6e8ee;--mute:#b79aa8;--line:#42242f;--brand:#ff6fb1;--bi:#2a0a19;--full:#ff6b6b;--ok:#4cd488;--wait:#f0b44a;--soft:#3a1c2a}}
+:root[data-theme="dark"]{--bg:#1a0f15;--sf:#27171f;--ink:#f6e8ee;--mute:#b79aa8;--line:#42242f;--brand:#ff6fb1;--bi:#2a0a19;--full:#ff6b6b;--ok:#4cd488;--wait:#f0b44a;--soft:#3a1c2a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai",system-ui,sans-serif;line-height:1.5;display:flex;justify-content:center}
+#app{width:100%;max-width:460px;height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative;padding-top:env(safe-area-inset-top,0px)}
+@media(min-width:520px){#app{height:min(900px,100%);margin:auto;border:1px solid var(--line);border-radius:22px;overflow:hidden}}
+.top{background:var(--brand);color:var(--bi);padding:14px 18px;display:flex;align-items:center;gap:10px}
+.top b{font-size:19px;font-weight:800}.top .u{margin-left:auto;font-size:13px;text-align:right;line-height:1.3}
+.scroll{flex:1;overflow-y:auto;padding:16px}
+.nav{display:flex;border-top:1px solid var(--line);background:var(--sf);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav button{flex:1;border:0;background:none;color:var(--mute);font:inherit;font-size:12px;padding:10px 4px;cursor:pointer;position:relative}
+.nav button[aria-current=true]{color:var(--brand);font-weight:600}
+.nav .dot{position:absolute;top:6px;right:calc(50% - 22px);background:var(--full);color:#fff;border-radius:99px;font-size:10px;padding:0 6px}
+.nav svg{display:block;margin:0 auto 2px}
+h2{font-size:17px;margin:4px 0 12px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.rm{display:flex;gap:12px;align-items:center}
+.rm .n{font-weight:600}.rm .s{font-size:13px;color:var(--mute)}
+.bd{margin-left:auto;font-size:13px;font-weight:600;padding:3px 11px;border-radius:99px;white-space:nowrap}
+.bd.full{background:color-mix(in srgb,var(--full) 15%,transparent);color:var(--full)}
+.bd.free{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.bd.res{background:color-mix(in srgb,var(--wait) 18%,transparent);color:var(--wait)}
+.btn{width:100%;padding:13px;border:0;border-radius:10px;background:var(--brand);color:var(--bi);font:inherit;font-weight:600;font-size:15px;cursor:pointer;margin-top:12px}
+.btn.s2{background:var(--soft);color:var(--ink)}.btn.d{background:color-mix(in srgb,var(--full) 14%,transparent);color:var(--full)}
+.btn:disabled{opacity:.5}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--sf);color:var(--ink);font:inherit;margin-top:6px}
+label{font-size:14px;color:var(--mute);display:block;margin-top:12px}
+.meta{display:flex;justify-content:space-between;font-size:14px;color:var(--mute);margin-top:8px}.meta b{color:var(--ink)}
+.q{font-size:60px;font-weight:800;color:var(--brand);line-height:1.1;text-align:center;margin:6px 0}
+.c{text-align:center}
+.pill{display:inline-block;padding:3px 14px;border-radius:99px;font-weight:600;font-size:14px}
+.pill.w{background:color-mix(in srgb,var(--wait) 18%,transparent);color:var(--wait)}
+.pill.c{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.pill.i{background:var(--soft);color:var(--brand)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:var(--brand)}
+ul{list-style:none;margin:0;padding:0}
+.li{display:flex;justify-content:space-between;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;background:var(--sf)}
+.li.me{border-color:var(--brand);background:var(--soft);font-weight:600}
+.sw{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.sw button{width:46px;height:27px;border-radius:99px;border:0;background:var(--line);position:relative;cursor:pointer}
+.sw button::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:left .15s}
+.sw button[aria-checked=true]{background:var(--brand)}.sw button[aria-checked=true]::after{left:22px}
+.empty{color:var(--mute);text-align:center;padding:30px 10px;font-size:14px}
+#banner{position:absolute;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));background:var(--ok);color:#fff;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;transform:translateY(-140%);transition:transform .25s;z-index:9;cursor:pointer}
+#banner.on{transform:none}#banner.err{background:var(--full)}
+.note{font-size:12px;color:var(--mute);text-align:center;margin-top:8px}
+.login{padding:28px 20px}.login .lg{font-size:34px;font-weight:800;color:var(--brand)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="banner" role="alert"></div>
+  <div class="top"><b>CUNEX</b><span style="font-size:14px">Library Room Queue</span><div class="u" id="usr"></div></div>
+  <div class="scroll" id="main"></div>
+  <nav class="nav" id="nav"></nav>
+</div>
+<script>
+(function(){
+var LS="cunex_user", U=null, S=null, tab="home", lastSt=null, busy=false;
+try{U=JSON.parse(localStorage.getItem(LS))}catch(e){}
+function $(s){return document.querySelector(s)}
+function mins(ms){return Math.max(0,Math.ceil(ms/(S?S.sim:2000)))}
+var bt;
+function banner(msg,err){var b=$("#banner");b.textContent=msg;b.className="on"+(err?" err":"");
+  try{if(!err&&navigator.vibrate)navigator.vibrate([200,100,200])}catch(e){}
+  clearTimeout(bt);bt=setTimeout(function(){b.className=""},5000)}
+$("#banner").onclick=function(){tab="mine";$("#banner").className="";render()};
+
+function call(path,body){
+  return fetch("/api/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({uid:U&&U.id},body||{}))})
+   .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||"เกิดข้อผิดพลาด");return j})})
+   .catch(function(e){banner(e.message==="Failed to fetch"?"เชื่อมต่อเซิร์ฟเวอร์ไม่ได้":e.message,true)});
+}
+function poll(){
+  if(!U||busy)return;busy=true;
+  fetch("/api/state?uid="+U.id).then(function(r){return r.json()}).then(function(j){
+    S=j;var m=my();
+    var st=m?m.st:null;
+    if(st==="called"&&lastSt==="wait"&&S.notify)banner("ห้องว่างแล้ว! "+m.no+" ถึงคิวของคุณ กรุณาเช็กอิน");
+    lastSt=st;render(true);
+  }).catch(function(){}).then(function(){busy=false});
+}
+function act(path,body){return call(path,body).then(function(){poll()})}
+
+function my(){
+  if(!S)return null;
+  for(var i=0;i<S.rooms.length;i++){var r=S.rooms[i];
+    if(r.occ&&r.occ.mine)return {r:r,st:"in",no:r.occ.no};
+    if(r.res&&r.res.mine)return {r:r,st:"called",no:r.res.no};
+    for(var j=0;j<r.q.length;j++)if(r.q[j].mine)return {r:r,st:"wait",pos:j+1,no:r.q[j].no};
+  }return null;
+}
+var ICON={
+ home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
+ mine:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4z"/></svg>',
+ hist:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
+function fmt(ts){return new Date(ts).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function loginView(){
+  return '<div class="login"><div class="lg">CUNEX</div><h2>Library Room Queue</h2><p style="color:var(--mute);font-size:14px">เข้าสู่ระบบด้วยรหัสนิสิตเพื่อจองคิวห้อง Study room</p>'+
+  '<label for="nm">ชื่อ</label><input id="nm" autocomplete="name" placeholder="เช่น Alice C.">'+
+  '<label for="id">รหัสนิสิต</label><input id="id" inputmode="numeric" maxlength="10" placeholder="10 หลัก">'+
+  '<button class="btn" id="go">เข้าสู่ระบบ</button></div>';
+}
+function homeView(){
+  var m=my(),h='<h2>ห้องสมุด · เลือกห้อง</h2>';
+  S.rooms.forEach(function(r){
+    var c=r.occ?["full","เต็ม"]:r.res?["res","รอเช็กอิน"]:["free","ว่าง"];
+    var sub=r.occ?('ว่างในอีก ~'+mins(r.occ.left)+' นาที'):r.res?'กำลังรอผู้ได้คิวเช็กอิน':'เข้าใช้งานได้ทันที';
+    h+='<div class="card"><div class="rm"><div><div class="n">'+r.name+'</div><div class="s">'+r.th+'</div></div><span class="bd '+c[0]+'">'+c[1]+'</span></div>'+
+    '<div class="meta"><span>'+sub+'</span><span>ผู้รอคิว <b>'+r.q.length+'</b> ท่าน</span></div>';
+    if(m&&m.r.id===r.id)h+='<button class="btn s2" data-tab="mine">ดูคิวของฉัน</button>';
+    else if(m)h+='<button class="btn s2" disabled>คุณมีคิวอยู่แล้ว</button>';
+    else h+='<button class="btn" data-join="'+r.id+'">'+((r.occ||r.res)?'ลงทะเบียนรอคิว':'จองและเข้าใช้ห้อง')+'</button>';
+    h+='<button class="btn s2" style="margin-top:8px;font-size:13px;padding:9px" data-other="'+r.id+'">จำลอง: มีผู้ใช้อื่นเข้าคิว</button></div>';
+  });
+  return h+'<div class="note">ข้อมูลทั้งหมดบันทึกที่เซิร์ฟเวอร์ · เวลา 1 นาที = '+(S.sim/1000)+' วินาที</div>';
+}
+function mineView(){
+  var m=my();
+  if(!m)return '<div class="empty">ยังไม่มีคิว<br>เลือกห้องที่ต้องการในหน้าแรก</div>';
+  var r=m.r,h='<h2>คิวของคุณ</h2><div class="card c"><div style="color:var(--mute);font-size:14px">'+r.name+' · '+r.th+'</div><div class="q">'+m.no+'</div>';
+  if(m.st==="wait"){
+    var eta=(r.occ?mins(r.occ.left):r.res?mins(r.res.left):0)+(m.pos-1)*S.use;
+    h+='<span class="pill w">รอคิว · อีก '+m.pos+' คิว</span><div class="meta"><span>เวลารอโดยประมาณ</span><b>~'+eta+' นาที</b></div>';
+  }else if(m.st==="called"){
+    var l=mins(r.res.left);
+    h+='<span class="pill c">ถึงคิวแล้ว!</span><p style="font-size:14px;margin:10px 0 0">กรุณายืนยันตัวตนและเช็กอินภายใน <b>'+l+'</b> นาที</p><div class="bar"><i style="width:'+Math.min(100,l/S.win*100)+'%"></i></div><button class="btn" id="chk">ยืนยันตัวตนและเช็กอิน</button>';
+  }else{
+    h+='<span class="pill i">กำลังใช้งาน</span><p style="font-size:14px;margin:10px 0 0">เหลือเวลา <b>'+mins(r.occ.left)+'</b> นาที</p><div class="bar"><i style="width:'+Math.max(0,r.occ.left/(S.use*S.sim)*100)+'%"></i></div>';
+  }
+  h+='<div class="sw"><span>Notifications (แจ้งเตือน): '+(S.notify?'ON':'OFF')+'</span><button id="sw" role="switch" aria-checked="'+S.notify+'" aria-label="การแจ้งเตือน"></button></div>';
+  h+='<button class="btn d" id="cancel">'+(m.st==="in"?'คืนห้อง':'ยกเลิกคิว')+'</button></div><h2>รายการคิวปัจจุบัน (Live)</h2><ul>';
+  if(r.occ)h+='<li class="li'+(r.occ.mine?' me':'')+'"><span>'+r.occ.no+(r.occ.mine?' (คุณ)':'')+'</span><span>(กำลังใช้ห้อง)</span></li>';
+  if(r.res)h+='<li class="li'+(r.res.mine?' me':'')+'"><span>'+r.res.no+(r.res.mine?' (คุณ)':'')+'</span><span>(Called - เข้ารับบริการ)</span></li>';
+  r.q.forEach(function(q){h+='<li class="li'+(q.mine?' me':'')+'"><span>'+q.no+(q.mine?' (คุณ)':'')+'</span><span>(กำลังรอ - Waiting)</span></li>'});
+  return h+'</ul>';
+}
+function histView(){
+  var h='<h2>ประวัติการใช้งาน</h2>';
+  if(!S.hist.length)h+='<div class="empty">ยังไม่มีประวัติ</div>';
+  S.hist.forEach(function(x){h+='<div class="card"><div class="rm"><div><div class="n">'+x.no+' · '+esc(x.room)+'</div><div class="s">'+fmt(x.at)+'</div></div><span class="bd" style="background:var(--soft);color:var(--ink)">'+esc(x.res)+'</span></div></div>'});
+  return h+'<button class="btn s2" id="logout">ออกจากระบบ</button><button class="btn s2" id="reset" style="font-size:12px;padding:8px">รีเซ็ตข้อมูลเดโมทั้งหมด (ผู้ดูแล)</button>';
+}
+function render(soft){
+  if(!U){
+    if(soft&&$("#nm"))return;
+    $("#usr").textContent="";$("#nav").innerHTML="";$("#main").innerHTML=loginView();
+    $("#go").onclick=function(){
+      var n=$("#nm").value.trim(),i=$("#id").value.trim();
+      if(!n||!/^\d{10}$/.test(i)){banner("กรอกชื่อและรหัสนิสิต 10 หลักให้ครบ",true);return}
+      U={name:n,id:i};try{localStorage.setItem(LS,JSON.stringify(U))}catch(e){}
+      call("login",{name:n}).then(function(){S=null;poll()});
+    };return;
+  }
+  if(!S){$("#main").innerHTML='<div class="empty">กำลังโหลด…</div>';return}
+  $("#usr").innerHTML=esc(U.name)+'<br><span style="opacity:.85">'+U.id+'</span>';
+  var m=my();
+  $("#nav").innerHTML=[["home","หน้าแรก"],["mine","คิวของฉัน"],["hist","ประวัติ"]].map(function(t){
+    return '<button data-tab="'+t[0]+'" aria-current="'+(tab===t[0])+'">'+ICON[t[0]]+t[1]+((t[0]==="mine"&&m)?'<span class="dot">1</span>':'')+'</button>'}).join("");
+  var sc=$("#main"),y=sc.scrollTop;
+  sc.innerHTML=tab==="home"?homeView():tab==="mine"?mineView():histView();
+  sc.scrollTop=y;
+  var q=function(s,f){var e=$(s);if(e)e.onclick=f};
+  q("#chk",function(){act("checkin")});q("#cancel",function(){act("cancel")});
+  q("#sw",function(){act("notify",{on:!S.notify})});
+  q("#logout",function(){try{localStorage.removeItem(LS)}catch(e){}U=null;S=null;lastSt=null;render()});
+  q("#reset",function(){if(confirm("ลบข้อมูลคิวและประวัติทั้งหมด?"))act("reset")});
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-tab],[data-join],[data-other]");if(!t)return;
+  if(t.dataset.tab){tab=t.dataset.tab;render()}
+  else if(t.dataset.join)act("join",{room:t.dataset.join}).then(function(){tab="mine";render()});
+  else if(t.dataset.other)act("sim",{room:t.dataset.other});
+});
+if(U)call("login",{name:U.name});
+render();poll();setInterval(poll,1000);
+})();
+</script>
+</body>
+</html>
