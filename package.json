@@ -1,0 +1,8 @@
+{
+  "name": "cunex-library-room-queue",
+  "version": "1.0.0",
+  "description": "CUNEX Library Room Queue - ระบบจองคิวห้องสมุด",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
